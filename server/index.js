@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import 'dotenv/config';
 
 // Connect to MongoDB
-mongoose.connect("mongodb+srv://msing506:WebDev123@myportfolio.izz74kf.mongodb.net/?appName=MyPortfolio");
+mongoose.connect(process.env.MONGODB_URI);
 const connection = mongoose.connection;
 connection.on('error', console.error.bind(console, "MongoDB connection error: "));
 connection.once('open', () => { console.log('Connected to MongoDB'); });
