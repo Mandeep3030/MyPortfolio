@@ -1,4 +1,4 @@
-import User from "../models/User.js";
+import User from "../models/user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -24,7 +24,11 @@ export const createUser = async (req, res) => {
 
 // Update user
 export const updateUser = async (req, res) => {
-  const updated = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  const update = { ...req.body };
+  if (update.password) {
+    update.password = await bcrypt.hash(update.password, 10);
+  }
+  const updated = await User.findByIdAndUpdate(req.params.id, update, { new: true });
   res.json(updated);
 };
 
@@ -45,8 +49,7 @@ export const deleteAllUsers = async (req, res) => {
 
 export const signup = async (req, res) => {
   const { name, email, password } = req.body;
-  const hashed = await bcrypt.hash(password, 10);
-  const user = new User({ name, email, password: hashed });
+  const user = new User({ name, email, password });
   await user.save();
   res.status(201).json({ message: "User registered" });
 };
@@ -56,9 +59,9 @@ export const signin = async (req, res) => {
   const user = await User.findOne({ email });
   if (!user) return res.status(404).json({ message: "User not found" });
 
-  const isMatch = await bcrypt.compare(password, user.password);
+  const isMatch = await user.comparePassword(password);
   if (!isMatch) return res.status(400).json({ message: "Invalid password" });
 
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+  const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1h" });
   res.json({ token });
 };

@@ -4,4 +4,5 @@ const contactSchema = new mongoose.Schema({
   lastname: { type: String, required: true },
   email: { type: String, required: true }
 });
-export default mongoose.model("Contact", contactSchema);
+const Contact = mongoose.models.Contact || mongoose.model("Contact", contactSchema);
+export default Contact;

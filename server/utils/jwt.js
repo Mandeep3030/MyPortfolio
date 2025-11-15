@@ -5,13 +5,12 @@ const generateToken = (user) => {
         {
             id: user._id,
             email: user.email,
-            username: user.username
+            name: user.name,
+            role: user.role
         },
         process.env.JWT_SECRET,
-        { 
-            expiresIn: '30d'
-        }
+        { expiresIn: '1h' }
     );
-}
+};
 
 export default generateToken;
