@@ -38,15 +38,17 @@ const Navbar = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+   const handleLogin = () => {
+    closeMenu();
+    navigate('/signin');
+  };
+  
   // Close menu when clicking outside
   const closeMenu = () => {
     setIsMenuOpen(false);
   };
 
-  const handleLogin = () => {
-    closeMenu();
-    navigate('/signin');
-  };
+ 
 
   const handleLogoff = async () => {
     await signout();
@@ -83,18 +85,6 @@ const Navbar = () => {
                 </Link>
               </li>
             ))}
-            {!isAuthenticated && (
-              <li className="navbar-item" role="none">
-                <Link
-                  to="/signup"
-                  className="btn btn-primary navbar-btn"
-                  onClick={closeMenu}
-                  role="menuitem"
-                >
-                  Sign Up
-                </Link>
-              </li>
-            )}
           </ul>
         </div>
 
@@ -106,7 +96,17 @@ const Navbar = () => {
               <button className="btn btn-primary navbar-btn" onClick={handleLogoff} aria-label="Log out">Log Off</button>
             </>
           ) : (
-            <button className="btn btn-primary navbar-btn" onClick={handleLogin} aria-label="Log in">Login</button>
+            <>
+              <button className="btn btn-primary navbar-btn" onClick={handleLogin} aria-label="Log in">Login</button>
+              <Link
+                to="/signup"
+                className="btn btn-secondary navbar-btn"
+                onClick={closeMenu}
+                role="menuitem"
+              >
+                Sign Up
+              </Link>
+            </>
           )}
         </div>
 
