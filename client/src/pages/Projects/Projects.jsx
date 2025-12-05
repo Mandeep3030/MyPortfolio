@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './Projects.css';
 import { useAuth } from '../../context/AuthContext';
+import API_BASE from '../../config';
 
 const initialForm = {
   title: '',
@@ -24,7 +25,7 @@ const Projects = () => {
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/projects');
+      const res = await fetch(`${API_BASE}/api/projects`);
       if (!res.ok) throw new Error('Failed to load projects');
       const data = await res.json();
       setProjects(Array.isArray(data) ? data : []);
@@ -50,7 +51,7 @@ const Projects = () => {
     if (!isAdmin) return;
     setSubmitting(true);
     try {
-      const res = await fetch('http://localhost:3000/api/projects', {
+      const res = await fetch(`${API_BASE}/api/projects`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

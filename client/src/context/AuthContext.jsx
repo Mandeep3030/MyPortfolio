@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import API_BASE from '../config';
 
 const AuthContext = createContext(null);
 
@@ -18,7 +19,7 @@ export const AuthProvider = ({ children }) => {
   }, [user]);
 
   const signin = async (email, password) => {
-    const res = await fetch('http://localhost:3000/api/auth/signin', {
+    const res = await fetch(`${API_BASE}/api/auth/signin`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
@@ -34,7 +35,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signup = async (name, email, password) => {
-    const res = await fetch('http://localhost:3000/api/user/signup', {
+    const res = await fetch(`${API_BASE}/api/user/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password })
@@ -48,7 +49,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signout = async () => {
-    try { await fetch('http://localhost:3000/api/auth/signout'); } catch {}
+    try { await fetch(`${API_BASE}/api/auth/signout`); } catch {}
     setToken(null);
     setUser(null);
   };

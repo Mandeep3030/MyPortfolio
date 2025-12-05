@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './Education.css';
 import { useAuth } from '../../context/AuthContext';
+import API_BASE from '../../config';
 
 const initialForm = {
   title: '',
@@ -24,7 +25,7 @@ const Education = () => {
   const fetchQualifications = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/qualifications');
+      const res = await fetch(`${API_BASE}/api/qualifications`);
       if (!res.ok) throw new Error('Failed to load education records');
       const data = await res.json();
       setQualifications(Array.isArray(data) ? data : []);
@@ -50,7 +51,7 @@ const Education = () => {
     if (!isAdmin) return;
     setSubmitting(true);
     try {
-      const res = await fetch('http://localhost:3000/api/qualifications', {
+      const res = await fetch(`${API_BASE}/api/qualifications`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
