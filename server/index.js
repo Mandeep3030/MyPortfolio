@@ -26,8 +26,24 @@ const app = express();
 
 app.use(express.json()); // Middleware to parse JSON bodies
 
-// Allow frontend (Vite) to call backend API during dev
-app.use(cors({ origin: 'http://localhost:5173' }));
+// CORS: allow dev (Vite) and deployed Render domain
+const allowedOrigins = [
+    'http://localhost:5173',
+    process.env.CLIENT_ORIGIN,
+    'https://myportfolio-ivm7.onrender.com'
+].filter(Boolean);
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // Allow same-origin (no origin), and any in the allowlist
+        if (!origin || allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error('Not allowed by CORS'));
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.use(morgan('dev'));
 
