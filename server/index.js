@@ -4,6 +4,11 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import 'dotenv/config';
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI);
 const connection = mongoose.connection;
@@ -32,10 +37,14 @@ app.use("/api/qualifications", qualification);
 app.use("/api/user", user);
 app.use("/api/auth", auth);
 
-app.use('/', (req, res) => {
-    res.json({ message: 'Welcome to my Portfolio application' });
-});
+// Serve built client assets
+const distPath = path.join(__dirname, '../client/dist');
+app.use(express.static(distPath));
 
+// SPA fallback: send index.html for non-API GET routes
+app.get(/^(?!\/api).*/, (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+});
 
 app.listen(3000);   
 
