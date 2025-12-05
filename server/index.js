@@ -10,10 +10,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI);
-const connection = mongoose.connection;
-connection.on('error', console.error.bind(console, "MongoDB connection error: "));
-connection.once('open', () => { console.log('Connected to MongoDB'); });
+const mongoUri = process.env.MONGODB_URI;
+if (!mongoUri) {
+    console.error('Missing MONGODB_URI environment variable');
+}
+
+mongoose
+    .connect(mongoUri, { serverSelectionTimeoutMS: 5000 })
+    .then(() => console.log('Connected to MongoDB'))
+    .catch((err) => {
+        console.error('MongoDB connection error:', err.message);
+    });
 
 const app = express();
 
@@ -45,7 +52,13 @@ app.use(express.static(distPath));
 app.get(/^(?!\/api).*/, (req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
 });
+// Health check endpoint
+app.get('/healthz', (req, res) => {
+    const state = mongoose.connection.readyState; // 0=disconnected,1=connected,2=connecting,3=disconnecting
+    res.json({ status: 'ok', db: state });
+});
 
-app.listen(3000);   
-
-console.log('Server running at http://localhost:3000/');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
