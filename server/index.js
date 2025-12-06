@@ -26,19 +26,42 @@ const app = express();
 
 app.use(express.json()); // Middleware to parse JSON bodies
 
-// CORS: allow dev (Vite) and deployed Render domain
+// CORS: allow dev, env-configured origins, and Render deployments
 const allowedOrigins = [
     'http://localhost:5173',
     process.env.CLIENT_ORIGIN,
+    process.env.RENDER_EXTERNAL_URL,
+    ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim()) : []),
     'https://myportfolio-ivm7.onrender.com'
 ].filter(Boolean);
 
+const allowedHostnames = allowedOrigins
+    .map((origin) => {
+        try {
+            return new URL(origin).hostname;
+        } catch {
+            return null;
+        }
+    })
+    .filter(Boolean);
+
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow same-origin (no origin), and any in the allowlist
-        if (!origin || allowedOrigins.includes(origin)) {
-            return callback(null, true);
+        // Allow same-origin (no origin), any explicit origin, and any Render-hosted domain
+        if (!origin) return callback(null, true);
+
+        try {
+            const hostname = new URL(origin).hostname;
+            const isExplicitOrigin = allowedOrigins.includes(origin) || allowedHostnames.includes(hostname);
+            const isRenderHost = hostname === 'onrender.com' || hostname.endsWith('.onrender.com');
+
+            if (isExplicitOrigin || isRenderHost) {
+                return callback(null, true);
+            }
+        } catch (err) {
+            return callback(new Error('Not allowed by CORS'));
         }
+
         return callback(new Error('Not allowed by CORS'));
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
